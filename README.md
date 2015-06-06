@@ -23,3 +23,6 @@ gem "logstash-filter-mixpanel", ">= 0.1.0", :git => "https://github.com/torstenf
 ```sh
 bundle install
 ```
+
+# Using
+[![Mixpanel Logo](https://cdn.mxpnl.com/site_media/images/partner/badge_blue.png)](https://mixpanel.com/f/partner)
