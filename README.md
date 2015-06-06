@@ -6,7 +6,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 
 # Status
 - [![Gem Version](https://badge.fury.io/rb/logstash-filter-mixpanel.svg)](http://badge.fury.io/rb/logstash-filter-mixpanel)
-- [![Build Status](https://travis-ci.org/torstenfeld/logstash-filter-mixpanel.svg?branch=master)](https://travis-ci.org/torstenfeld/logstash-filter-mixpanel) (master)
+- [![Build Status](https://travis-ci.org/torstenfeld/logstash-filter-mixpanel.svg?branch=master)](https://travis-ci.org/torstenfeld/logstash-filter-mixpanel)
 - [![Coverage Status](https://coveralls.io/repos/torstenfeld/logstash-filter-mixpanel/badge.svg?branch=master)](https://coveralls.io/r/torstenfeld/logstash-filter-mixpanel?branch=master)
 - [![Code Climate](https://codeclimate.com/github/torstenfeld/logstash-filter-mixpanel/badges/gpa.svg)](https://codeclimate.com/github/torstenfeld/logstash-filter-mixpanel)
 - [![Dependency Status](https://gemnasium.com/torstenfeld/logstash-filter-mixpanel.svg)](https://gemnasium.com/torstenfeld/logstash-filter-mixpanel)
@@ -15,8 +15,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 
 - Edit Logstash `Gemfile` and add needed requirements:
 ```ruby
-gem "whatlanguage"
-gem "logstash-filter-mixpanel", ">= 0.2.0", :git => "https://github.com/torstenfeld/logstash-filter-mixpanel.git"
+gem "logstash-filter-mixpanel", ">= 0.1.0", :git => "https://github.com/torstenfeld/logstash-filter-mixpanel.git"
 ```
 
 
