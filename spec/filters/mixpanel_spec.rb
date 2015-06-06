@@ -15,7 +15,8 @@ describe LogStash::Filters::Mixpanel do
     @user_data = {
         :$first_name => FFaker::NameDE.first_name,
         :$last_name => FFaker::NameDE.last_name,
-        :$email => FFaker::Internet.safe_email
+        :$email => FFaker::Internet.safe_email,
+        'Device ID' => @user_id
     }
     @mp.people.set(@user_id, @user_data, ip=@user_ip)
     @mp.track(@user_id, 'user created')
@@ -53,7 +54,7 @@ describe LogStash::Filters::Mixpanel do
         config = {
             'api_key' => '123',
             'api_secret' => '123',
-            'where' => '123'
+            'where' => [{'Device ID' => @user_id}]
         }
         filter = LogStash::Filters::Mixpanel.new config
         filter.register
@@ -70,7 +71,7 @@ describe LogStash::Filters::Mixpanel do
         config = {
             'api_key' => ENV['MP_PROJECT_KEY'],
             'api_secret' => '123',
-            'where' => '123'
+            'where' => [{'Device ID' => @user_id}]
         }
         filter = LogStash::Filters::Mixpanel.new config
         filter.register
@@ -90,7 +91,7 @@ describe LogStash::Filters::Mixpanel do
         mixpanel {
           api_key => '#{ENV['MP_PROJECT_KEY']}'
           api_secret => '#{ENV['MP_PROJECT_SECRET']}'
-          where => '123'
+          where => [{'Device ID' => '#{@user_id}'}]
         }
       }
     CONFIG
@@ -100,9 +101,11 @@ describe LogStash::Filters::Mixpanel do
     #   expect(subject).to include('mixpanel')
     # end
 
-    context 'by distinct id' do
+    context 'by property' do
       sample("message" => "123") do
         expect(subject).to include('mixpanel')
+        expect(subject['mixpanel']).to include('$distinct_id')
+        expect(subject['mixpanel']).to have_at_least(1).items
       end
     end
   end
