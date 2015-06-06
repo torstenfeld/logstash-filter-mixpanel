@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'logstash-filter-mixpanel'
-  s.version         = '0.1.0'
+  s.version = '0.1.1'
   s.version = "#{s.version}.pre.#{ENV['TRAVIS_BUILD_NUMBER']}" if ENV['TRAVIS'] and ENV['TRAVIS_BRANCH'] != 'master'
   s.licenses = ['Apache License (2.0)']
   s.summary = "This filter checks mixpanel for additional people data and adds it to the event data"
@@ -20,9 +20,9 @@ Gem::Specification.new do |s|
 
   # Gem dependencies
   s.add_runtime_dependency "logstash-core", '>= 1.4.0', '< 2.0.0'
-  s.add_runtime_dependency "mixpanel_client", '~> 4.1.2'
+  s.add_runtime_dependency "mixpanel_client", '~> 4.1'
   s.add_development_dependency 'logstash-devutils'
-  s.add_development_dependency 'coveralls', '~> 0.8.1'
+  s.add_development_dependency 'coveralls', '~> 0.8'
   s.add_development_dependency 'ffaker', '~> 2.0'
   s.add_development_dependency 'mixpanel-ruby', '< 2.0'
 end
