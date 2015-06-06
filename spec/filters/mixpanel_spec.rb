@@ -1,5 +1,5 @@
-require 'spec_helper'
-require "logstash/filters/example"
+require File.absolute_path(File.join(File.dirname(__FILE__), '../../spec/spec_helper'))
+require File.absolute_path(File.join(File.dirname(__FILE__), '../../lib/logstash/filters/mixpanel'))
 
 describe LogStash::Filters::Example do
   describe "Set to Hello World" do

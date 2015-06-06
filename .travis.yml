@@ -1,0 +1,17 @@
+language: ruby
+rvm:
+- jruby-1.7.20
+before_install:
+- gem install bundler -v 1.10.1
+script: bundle exec rspec
+deploy:
+  provider: rubygems
+  api_key:
+    secure: J3/E3dTIv1ZkCLLbDj0EJVh5toxHOACsqjTuoUjwnV0dc6GQsqhlgxxOebtOU+LMyO7WaXncPH9Yy3zYpI2G7hulOczGiF+9JG1SqysMg0RS5LX0lyZlE8UPb/C3ILKPAbMfyrp/dMhS+9M36p6ZOjtS2PMXVgAi/tUUvFEgXLmoi1yzfbG1Dy0JLOURPgLdKgXdV54VxxPb/V3YZXq2S0XVu5MTDQOJoblYJ6RyBfkFVcDoSFI3qBUD6m2xmw1qpv0rfiKEZmiImpTi1/jOIxBEIIARBi0X1RWM1p/mOcXxiWMpJ925crYftibd39acuAO2bIMiYyeevB76QhM4va+OlQ1/yHe85EibixH+kRL7Xd99j+Ouwdpa6m14M8NWFo2Lx3Rr99MjAYeDNMV++OBS3KBMmyAZIqA/sosAjnzMeZHFKRxRMdkZW1/AFHkXVcOFYIIGn83l0ciLBFpjRnDimBN2KVA6Alslu7+qPGEuQKTSEpVZF1uNui+tF1z/MgnllX1IMnNN4RODNbYKAUc+drL2nRit1QCnUAR7BYZ7Q4LcmcSmnGX2dPD1ovUSbiCNDbWCDecZAd2TFqbMn9Bgx9jHyNgfo4yEednDgrYmk1OGNExIunWJckirYBhYGDQN4Lv39Kb4Xyqe4jV35HvYVZIKBwnSyHIfwJykFeA=
+after_success:
+- coveralls
+addons:
+  code_climate:
+    repo_token:
+      secure: --
+cache: bundler
