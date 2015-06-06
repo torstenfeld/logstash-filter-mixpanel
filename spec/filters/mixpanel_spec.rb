@@ -21,22 +21,93 @@ describe LogStash::Filters::Mixpanel do
     @mp.track(@user_id, 'user created')
   end
 
+  context 'raise error' do
+    context 'on wrong api key config' do
+      subject {
+        config = {
+            'api_key' => 123
+        }
+        filter = LogStash::Filters::Mixpanel.new config
+      }
 
-  describe 'first test' do
+      it 'should raise error on invalid api key config' do
+        insist { subject.register }.raises(LogStash::ConfigurationError)
+      end
+    end
+
+    context 'on wrong api secret config' do
+      subject {
+        config = {
+            'api_secret' => 123
+        }
+        filter = LogStash::Filters::Mixpanel.new config
+      }
+
+      it 'should raise error on invalid api secret config' do
+        insist { subject.register }.raises(LogStash::ConfigurationError)
+      end
+    end
+
+    context 'on invalid api key' do
+      subject {
+        config = {
+            'api_key' => '123',
+            'api_secret' => '123',
+            'where' => '123'
+        }
+        filter = LogStash::Filters::Mixpanel.new config
+        filter.register
+        filter.filter LogStash::Event.new
+      }
+
+      it 'should raise error on invalid api key' do
+        insist { subject.filter.flush }.raises(Mixpanel::HTTPError)
+      end
+    end
+
+    context 'on invalid api secret' do
+      subject {
+        config = {
+            'api_key' => ENV['MP_PROJECT_KEY'],
+            'api_secret' => '123',
+            'where' => '123'
+        }
+        filter = LogStash::Filters::Mixpanel.new config
+        filter.register
+        filter.filter LogStash::Event.new
+        # filter.filter LogStash::Event.new({'message' => 'test'})
+      }
+
+      it 'should raise error on invalid api secret' do
+        insist { subject.filter.flush }.raises(Mixpanel::HTTPError)
+      end
+    end
+  end
+
+  context 'fetch created user' do
     let(:config) do <<-CONFIG
       filter {
         mixpanel {
-          api_key => '123'
-          api_secret => '123'
+          api_key => '#{ENV['MP_PROJECT_KEY']}'
+          api_secret => '#{ENV['MP_PROJECT_SECRET']}'
           where => '123'
         }
       }
     CONFIG
     end
 
-    sample("message" => "test") do
-      expect(subject).to include('message')
-      expect(subject['message']).to eq('test')
+    # sample("message" => "123") do
+    #   expect(subject).to include('mixpanel')
+    # end
+
+    context 'by distinct id' do
+      sample("message" => "123") do
+        expect(subject).to include('mixpanel')
+      end
     end
+  end
+
+  after(:all) do
+    @mp.people.delete_user(@user_id)
   end
 end
