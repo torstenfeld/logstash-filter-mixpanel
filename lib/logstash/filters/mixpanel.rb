@@ -39,13 +39,20 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
   public
   def filter(event)
 
-    if @message
-      # Replace the event message with our message as configured in the
-      # config file.
-      event["message"] = @message
-    end
+    result = fetch_data
+    # TODO: remove puts result
+    puts result
+    event[@target] = result
 
     # filter_matched should go in the last line of our successful code
     filter_matched(event)
   end # def filter
+
+  private
+  def fetch_data
+    options = {}
+    # options['where'] = @where if @where
+    result = @mp.request('engage', options)
+    result
+  end
 end # class LogStash::Filters::Example
