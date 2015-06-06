@@ -23,4 +23,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "mixpanel_client", '~> 4.1.2'
   s.add_development_dependency 'logstash-devutils'
   s.add_development_dependency 'coveralls', '~> 0.8.1'
+  s.add_development_dependency 'ffaker', '~> 2.0'
+  s.add_development_dependency 'mixpanel-ruby', '< 2.0'
 end
