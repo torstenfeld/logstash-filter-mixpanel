@@ -1,12 +1,13 @@
 # encoding: utf-8
 require "logstash/filters/base"
 require "logstash/namespace"
+require 'mixpanel_client'
 
 # This example filter will replace the contents of the default 
 # message field with whatever you specify in the configuration.
 #
 # It is only intended to be used as an example.
-class LogStash::Filters::Example < LogStash::Filters::Base
+class LogStash::Filters::Mixpanel < LogStash::Filters::Base
 
   # Setting the config_name here is required. This is how you
   # configure this filter from your Logstash config.
@@ -17,15 +18,22 @@ class LogStash::Filters::Example < LogStash::Filters::Base
   #   }
   # }
   #
-  config_name "example"
+  config_name "mixpanel"
   
   # Replace the message with this value.
-  config :message, :validate => :string, :default => "Hello World!"
-  
+  config :api_key, :validate => :string, :required => true
+  config :api_secret, :validate => :string, :required => true
+  config :where, :validate => :string, :required => true
+  config :source, :validate => :string, :default => 'message'
+  config :target, :validate => :string, :default => 'mixpanel'
+
 
   public
   def register
-    # Add instance variables 
+    @mp = Mixpanel::Client.new(
+      api_key: @api_key,
+      api_secret: @api_secret
+    )
   end # def register
 
   public
