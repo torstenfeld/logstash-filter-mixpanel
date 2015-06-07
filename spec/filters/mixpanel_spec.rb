@@ -1,5 +1,6 @@
 require File.absolute_path(File.join(File.dirname(__FILE__), '../../spec/spec_helper'))
 require File.absolute_path(File.join(File.dirname(__FILE__), '../../lib/logstash/filters/mixpanel'))
+require 'rspec'
 require 'mixpanel_client'
 require 'mixpanel-ruby'
 require 'ffaker'
@@ -184,7 +185,7 @@ describe LogStash::Filters::Mixpanel do
           mixpanel {
             api_key => '#{ENV['MP_PROJECT_KEY']}'
             api_secret => '#{ENV['MP_PROJECT_SECRET']}'
-            where => [{'$first_name' => '#{@user_1_first_name}'}]
+            where => [{'first_name' => '#{@user_1_first_name}'}]
           }
         }
         CONFIG
@@ -197,6 +198,7 @@ describe LogStash::Filters::Mixpanel do
         expect(subject['mixpanel']).to include('$email')
         expect(subject['mixpanel']).to include('$last_name')
         expect(subject['mixpanel']).to include('Device ID')
+        expect(subject).to include('tags')
 
         expect(subject['tags']).to include('_mixpanelfiltermultiresults')
       end
@@ -208,7 +210,7 @@ describe LogStash::Filters::Mixpanel do
           mixpanel {
             api_key => '#{ENV['MP_PROJECT_KEY']}'
             api_secret => '#{ENV['MP_PROJECT_SECRET']}'
-            where => [{'$email' => '#{@user_1_email}'}, {'$email' => '#{@user_2_email}'}]
+            where => [{'email' => '#{@user_1_email}'}, {'email' => '#{@user_2_email}'}]
             use_or => true
           }
         }
@@ -223,6 +225,7 @@ describe LogStash::Filters::Mixpanel do
         expect(subject['mixpanel']).to include('$last_name')
         expect(subject['mixpanel']).to include('Device ID')
 
+        expect(subject).to include('tags')
         expect(subject['tags']).to include('_mixpanelfiltermultiresults')
       end
     end
