@@ -40,9 +40,15 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
   def filter(event)
 
     result = fetch_data
+    # TODO: handle nil result (when no item could be found)
     # TODO: remove puts result
     puts result
-    event[@target] = result
+    if !result.nil?
+      puts 'result not nil'
+      event[@target] = result
+    else
+      puts 'result nil'
+    end
 
     # filter_matched should go in the last line of our successful code
     filter_matched(event)
@@ -59,18 +65,21 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
     puts ''
     puts response['results']
     puts ''
-    if response['results'].size > 1
-      puts 'size > 1'
-      item = response['results'][0]
+    if response['results'].size >= 1
+      # TODO: needs testing (results > 1)
+      puts 'size >= 1'
+      single_res = response['results'][0]
     else
-      puts 'size <= 1'
-      item = response['results']
+      # TODO: needs testing (results < 1)
+      puts 'size == 0'
+      result = nil
+      return result
     end
-    distinct_id = item['$distinct_id']
-    response = item['$properties']
-    response['$distinct_id'] = distinct_id
-    puts response
-    response
+    distinct_id = single_res['$distinct_id']
+    result = single_res['$properties']
+    result['$distinct_id'] = distinct_id
+    puts result
+    result
   end
 
   private
@@ -86,6 +95,11 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
         res_array.push "properties[\"#{key}\"] == \"#{value}\""
       }
     }
-    res_array.join ' and '
+    response = res_array.join ' and '
+    # TODO: remove puts
+    puts ''
+    puts response
+    puts ''
+    response
   end
 end # class LogStash::Filters::Example

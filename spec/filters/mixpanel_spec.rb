@@ -12,10 +12,11 @@ describe LogStash::Filters::Mixpanel do
 
     @user_id = FFaker::Guid.guid
     @user_ip = FFaker::Internet.ip_v4_address
+    @user_email = FFaker::Internet.safe_email
     @user_data = {
         :$first_name => FFaker::NameDE.first_name,
         :$last_name => FFaker::NameDE.last_name,
-        :$email => FFaker::Internet.safe_email,
+        :$email => @user_email,
         'Device ID' => @user_id
     }
     @mp.people.set(@user_id, @user_data, ip=@user_ip)
@@ -86,7 +87,8 @@ describe LogStash::Filters::Mixpanel do
   end
 
   context 'fetch created user' do
-    let(:config) do <<-CONFIG
+    context 'by device id' do
+      let(:config) do <<-CONFIG
       filter {
         mixpanel {
           api_key => '#{ENV['MP_PROJECT_KEY']}'
@@ -94,23 +96,46 @@ describe LogStash::Filters::Mixpanel do
           where => [{'Device ID' => '#{@user_id}'}]
         }
       }
-    CONFIG
-    end
+      CONFIG
+      end
 
-    # sample("message" => "123") do
-    #   expect(subject).to include('mixpanel')
-    # end
-
-    context 'by property' do
       sample("message" => "123") do
         expect(subject).to include('mixpanel')
+        expect(subject['mixpanel']).to include('Device ID')
         expect(subject['mixpanel']).to include('$distinct_id')
-        expect(subject['mixpanel']).to have_at_least(1).items
+        expect(subject['mixpanel']).to include('$email')
+        expect(subject['mixpanel']).to include('$last_name')
+        expect(subject['mixpanel']).to include('Device ID')
       end
     end
+
+    context 'by email' do
+      let(:config) do <<-CONFIG
+      filter {
+        mixpanel {
+          api_key => '#{ENV['MP_PROJECT_KEY']}'
+          api_secret => '#{ENV['MP_PROJECT_SECRET']}'
+          where => [{'email' => '#{@user_email}'}]
+        }
+      }
+      CONFIG
+      end
+
+      sample("message" => "123") do
+        expect(subject).to include('mixpanel')
+        expect(subject['mixpanel']).to include('Device ID')
+        expect(subject['mixpanel']).to include('$distinct_id')
+        expect(subject['mixpanel']).to include('$email')
+        expect(subject['mixpanel']).to include('$last_name')
+        expect(subject['mixpanel']).to include('Device ID')
+      end
+    end
+
+
   end
 
   after(:all) do
-    @mp.people.delete_user(@user_id)
+    # TODO: re-enable deletion
+    # @mp.people.delete_user(@user_id)
   end
 end
