@@ -19,7 +19,8 @@ describe LogStash::Filters::Mixpanel do
         :$first_name => @user_1_first_name,
         :$last_name => @user_1_last_name,
         :$email => @user_1_email,
-        'Device ID' => @user_1_id
+        'Device ID' => @user_1_id,
+        'user_type' => 1
     }
     @mp.people.set(@user_1_id, @user_1_data, ip=@user_1_ip)
     @mp.track(@user_1_id, 'user 1 created')
@@ -33,7 +34,8 @@ describe LogStash::Filters::Mixpanel do
         :$first_name => @user_2_first_name,
         :$last_name => @user_2_last_name,
         :$email => @user_2_email,
-        'Device ID' => @user_2_id
+        'Device ID' => @user_2_id,
+        'user_type' => 2
     }
     @mp.people.set(@user_2_id, @user_2_data, ip=@user_2_ip)
     @mp.track(@user_2_id, 'user 2 created')
@@ -128,7 +130,7 @@ describe LogStash::Filters::Mixpanel do
       end
     end
 
-    context 'by email' do
+    context 'by email if it has no dollar char' do
       let(:config) do <<-CONFIG
       filter {
         mixpanel {
@@ -141,7 +143,7 @@ describe LogStash::Filters::Mixpanel do
       end
 
       sample('message' => '123') do
-        expect(subject).to include('mixpanel')
+        expect(subject).to include("mixpanel")
         expect(subject['mixpanel']).to include('Device ID')
         expect(subject['mixpanel']).to include('$distinct_id')
         expect(subject['mixpanel']).to include('$email')
@@ -151,7 +153,7 @@ describe LogStash::Filters::Mixpanel do
       end
     end
 
-    context 'by email if it has dollar sign' do
+    context 'by email if it has dollar char' do
       let(:config) do <<-CONFIG
       filter {
         mixpanel {
@@ -164,7 +166,7 @@ describe LogStash::Filters::Mixpanel do
       end
 
       sample('message' => '123') do
-        expect(subject).to include('mixpanel')
+        expect(subject).to include("mixpanel")
         expect(subject['mixpanel']).to include('Device ID')
         expect(subject['mixpanel']).to include('$distinct_id')
         expect(subject['mixpanel']).to include('$email')
@@ -176,25 +178,53 @@ describe LogStash::Filters::Mixpanel do
   end
 
   context 'test on multiple returns' do
-    let(:config) do <<-CONFIG
-      filter {
-        mixpanel {
-          api_key => '#{ENV['MP_PROJECT_KEY']}'
-          api_secret => '#{ENV['MP_PROJECT_SECRET']}'
-          where => [{'first_name' => '#{@user_1_first_name}'}]
+    context 'with and constraint' do
+      let(:config) do <<-CONFIG
+        filter {
+          mixpanel {
+            api_key => '#{ENV['MP_PROJECT_KEY']}'
+            api_secret => '#{ENV['MP_PROJECT_SECRET']}'
+            where => [{'$first_name' => '#{@user_1_first_name}'}]
+          }
         }
-      }
-    CONFIG
+        CONFIG
+      end
+
+      sample('message' => '123') do
+        expect(subject).to include("mixpanel")
+        expect(subject['mixpanel']).to include('Device ID')
+        expect(subject['mixpanel']).to include('$distinct_id')
+        expect(subject['mixpanel']).to include('$email')
+        expect(subject['mixpanel']).to include('$last_name')
+        expect(subject['mixpanel']).to include('Device ID')
+
+        expect(subject['tags']).to include('_mixpanelfiltermultiresults')
+      end
     end
 
-    sample('message' => '123') do
-      expect(subject).to include('mixpanel')
-      expect(subject['mixpanel']).to include('Device ID')
-      expect(subject['mixpanel']).to include('$distinct_id')
-      expect(subject['mixpanel']).to include('$email')
-      expect(subject['mixpanel']).to include('$last_name')
-      expect(subject['mixpanel']).to include('Device ID')
-      insist { subject['tags'] }.nil?
+    context 'with or constraint' do
+      let(:config) do <<-CONFIG
+        filter {
+          mixpanel {
+            api_key => '#{ENV['MP_PROJECT_KEY']}'
+            api_secret => '#{ENV['MP_PROJECT_SECRET']}'
+            where => [{'$email' => '#{@user_1_email}'}, {'$email' => '#{@user_2_email}'}]
+            use_or => true
+          }
+        }
+      CONFIG
+      end
+
+      sample('message' => '123') do
+        expect(subject).to include('mixpanel')
+        expect(subject['mixpanel']).to include('Device ID')
+        expect(subject['mixpanel']).to include('$distinct_id')
+        expect(subject['mixpanel']).to include('$email')
+        expect(subject['mixpanel']).to include('$last_name')
+        expect(subject['mixpanel']).to include('Device ID')
+
+        expect(subject['tags']).to include('_mixpanelfiltermultiresults')
+      end
     end
   end
 
@@ -204,7 +234,7 @@ describe LogStash::Filters::Mixpanel do
         mixpanel {
           api_key => '#{ENV['MP_PROJECT_KEY']}'
           api_secret => '#{ENV['MP_PROJECT_SECRET']}'
-          where => [{'first_name' => 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'}]
+          where => [{'$first_name' => 'thisfirstnameshouldneverbeseen123'}]
         }
       }
     CONFIG
