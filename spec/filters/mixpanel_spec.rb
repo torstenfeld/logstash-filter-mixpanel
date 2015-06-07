@@ -8,12 +8,6 @@ require 'base64'
 
 
 describe LogStash::Filters::Mixpanel do
-  before(:all) do
-    # @mpc = Mixpanel::Client.new(
-    #     api_key: ENV['MP_PROJECT_KEY'],
-    #     api_secret: ENV['MP_PROJECT_SECRET']
-    # )
-  end
 
   context 'raise error' do
     context 'on wrong api key config' do
@@ -319,10 +313,5 @@ describe LogStash::Filters::Mixpanel do
       insist { subject['tags'] }.include?('_mixpanelfilterfailure')
       reject { subject }.include?('mixpanel')
     end
-  end
-
-  after(:all) do
-    # @mp.people.delete_user(@user_1_id)
-    # @mp.people.delete_user(@user_2_id)
   end
 end

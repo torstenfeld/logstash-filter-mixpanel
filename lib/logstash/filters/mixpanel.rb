@@ -96,9 +96,6 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
     else
       result = res_array.join ' and '
     end
-    puts ''
-    puts result.inspect
-    puts ''
     result
   end
 end # class LogStash::Filters::Mixpanel
