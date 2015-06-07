@@ -78,7 +78,6 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
     wheredata.each { |constraint|
       constraint.each { |key, value|
         # prepend key with dollar sigh if key is in special_properties
-        # TODO: add test for special properties without dollar sign
         key = "$#{key}" if special_properties.include? key
 
         res_array.push "properties[\"#{key}\"] == \"#{value}\""

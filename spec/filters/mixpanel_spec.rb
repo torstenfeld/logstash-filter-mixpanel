@@ -117,7 +117,7 @@ describe LogStash::Filters::Mixpanel do
       CONFIG
       end
 
-      sample("message" => "123") do
+      sample('message' => '123') do
         expect(subject).to include('mixpanel')
         expect(subject['mixpanel']).to include('Device ID')
         expect(subject['mixpanel']).to include('$distinct_id')
@@ -140,7 +140,30 @@ describe LogStash::Filters::Mixpanel do
       CONFIG
       end
 
-      sample("message" => "123") do
+      sample('message' => '123') do
+        expect(subject).to include('mixpanel')
+        expect(subject['mixpanel']).to include('Device ID')
+        expect(subject['mixpanel']).to include('$distinct_id')
+        expect(subject['mixpanel']).to include('$email')
+        expect(subject['mixpanel']).to include('$last_name')
+        expect(subject['mixpanel']).to include('Device ID')
+        insist { subject['tags'] }.nil?
+      end
+    end
+
+    context 'by email if it has dollar sign' do
+      let(:config) do <<-CONFIG
+      filter {
+        mixpanel {
+          api_key => '#{ENV['MP_PROJECT_KEY']}'
+          api_secret => '#{ENV['MP_PROJECT_SECRET']}'
+          where => [{'$email' => '#{@user_1_email}'}]
+        }
+      }
+      CONFIG
+      end
+
+      sample('message' => '123') do
         expect(subject).to include('mixpanel')
         expect(subject['mixpanel']).to include('Device ID')
         expect(subject['mixpanel']).to include('$distinct_id')
@@ -164,7 +187,7 @@ describe LogStash::Filters::Mixpanel do
     CONFIG
     end
 
-    sample("message" => "123") do
+    sample('message' => '123') do
       expect(subject).to include('mixpanel')
       expect(subject['mixpanel']).to include('Device ID')
       expect(subject['mixpanel']).to include('$distinct_id')
@@ -187,8 +210,8 @@ describe LogStash::Filters::Mixpanel do
     CONFIG
     end
 
-    sample("message" => "123") do
-      insist { subject["tags"] }.include?('_mixpanelfilterfailure')
+    sample('message' => '123') do
+      insist { subject['tags'] }.include?('_mixpanelfilterfailure')
       reject { subject }.include?('mixpanel')
     end
   end
