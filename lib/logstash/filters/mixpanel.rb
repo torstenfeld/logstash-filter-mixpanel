@@ -18,7 +18,7 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
   #   }
   # }
   #
-  config_name "mixpanel"
+  config_name 'mixpanel'
 
   # Replace the message with this value.
   config :api_key, :validate => :string, :required => true
@@ -26,6 +26,7 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
   config :where, :validate => :array, :required => true
   config :source, :validate => :string, :default => 'message'
   config :target, :validate => :string, :default => 'mixpanel'
+  config :tag_on_failure, :validate => :array, :default => ['_mixpanelfilterfailure']
 
 
   public
@@ -40,18 +41,17 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
   def filter(event)
 
     result = fetch_data
-    # TODO: handle nil result (when no item could be found)
-    # TODO: remove puts result
-    puts result
     if !result.nil?
-      puts 'result not nil'
       event[@target] = result
-    else
-      puts 'result nil'
-    end
 
-    # filter_matched should go in the last line of our successful code
-    filter_matched(event)
+      # filter_matched should go in the last line of our successful code
+      filter_matched(event)
+    else
+      @tag_on_failure.each do |tag|
+        event['tags'] ||= []
+        event['tags'] << tag unless event["tags"].include?(tag)
+      end
+    end
   end # def filter
 
   private
@@ -60,31 +60,20 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
     options['where'] = prepare_where @where if @where
 
     response = @mp.request('engage', options)
-    puts ''
-    puts response
-    puts ''
-    puts response['results']
-    puts ''
     if response['results'].size >= 1
-      # TODO: needs testing (results > 1)
-      puts 'size >= 1'
       single_res = response['results'][0]
     else
-      # TODO: needs testing (results < 1)
-      puts 'size == 0'
-      result = nil
-      return result
+      return nil
     end
     distinct_id = single_res['$distinct_id']
     result = single_res['$properties']
     result['$distinct_id'] = distinct_id
-    puts result
     result
   end
 
   private
   def prepare_where wheredata
-    special_properties = %w(email first_name last_name)
+    special_properties = %w(email first_name last_name last_seen created)
     res_array = []
     wheredata.each { |constraint|
       constraint.each { |key, value|
@@ -95,11 +84,6 @@ class LogStash::Filters::Mixpanel < LogStash::Filters::Base
         res_array.push "properties[\"#{key}\"] == \"#{value}\""
       }
     }
-    response = res_array.join ' and '
-    # TODO: remove puts
-    puts ''
-    puts response
-    puts ''
-    response
+    res_array.join ' and '
   end
 end # class LogStash::Filters::Example
