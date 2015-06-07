@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'logstash-filter-mixpanel'
-  s.version = '0.1.3'
+  s.version = '0.1.4'
   s.version = "#{s.version}.pre.#{ENV['TRAVIS_BUILD_NUMBER']}" if ENV['TRAVIS'] and ENV['TRAVIS_BRANCH'] != 'master'
   s.licenses = ['Apache License (2.0)']
   s.summary = "This filter checks mixpanel for additional people data and adds it to the event data"
